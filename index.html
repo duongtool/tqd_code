@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Tqd - 2009</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f3;
+  --surface:#ffffff;
+  --surface-2:#eef0ec;
+  --ink:#161a17;
+  --ink-2:#5a635c;
+  --ink-3:#8a938b;
+  --line:#dde1da;
+  --accent:#0f766e;
+  --accent-ink:#0b5e57;
+  --accent-soft:#e0f2ef;
+  --editor-bg:#1e1e1e;
+  --editor-ink:#d4d4d4;
+  --radius:14px;
+  --shadow:0 8px 24px rgba(20,30,24,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1210;
+    --surface:#171c19;
+    --surface-2:#1e2521;
+    --ink:#edf2ee;
+    --ink-2:#a7b3aa;
+    --ink-3:#7d8a80;
+    --line:#2a332d;
+    --accent:#2dd4bf;
+    --accent-ink:#5eead4;
+    --accent-soft:#12312c;
+    --editor-bg:#1e1e1e;
+    --editor-ink:#d4d4d4;
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Be Vietnam Pro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg); color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,textarea{font-family:inherit}
+
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 56px}
+@media(max-width:640px){.wrap{padding:20px 14px 44px}}
+
+h1{font-size:23px;line-height:1.2;letter-spacing:-.01em;margin:0 0 4px;font-weight:800}
+.sub{color:var(--ink-2);font-size:14.5px;line-height:1.55;margin:0 0 22px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+@media(max-width:640px){.card{padding:16px}}
+#inputCard[hidden]{display:none}
+.empty-note{
+  border:1px dashed var(--line);border-radius:var(--radius);padding:20px 18px;margin:0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  text-align:center;color:var(--ink-2);font-size:14px;background:var(--surface);
+}
+.empty-note[hidden]{display:none}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13.5px;font-weight:700;margin-bottom:8px}
+.field label span{color:var(--ink-3);font-weight:500}
+input#nameInput{
+  width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);color:var(--ink);font-size:15px;outline:none;transition:border-color .15s;
+}
+input#nameInput:focus{border-color:var(--accent)}
+input#nameInput::placeholder{color:var(--ink-3)}
+/* VS Code–style editor window */
+.editor{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#1e1e1e;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.editor:focus-within{border-color:var(--accent)}
+.editor-bar{
+  display:flex;align-items:center;gap:8px;background:#323233;
+  padding:10px 14px;border-bottom:1px solid #252526;
+}
+.dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+.dot-r{background:#ff5f57}
+.dot-y{background:#febc2e}
+.dot-g{background:#28c840}
+.js-admin-dot{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.admin-hit{
+  appearance:none;-webkit-appearance:none;border:none;background:transparent;padding:0;margin:0;
+  width:40px;height:40px;flex:0 0 auto;display:inline-grid;place-items:center;border-radius:50%;
+}
+button.admin-hit .dot{pointer-events:none}
+button.admin-hit:hover .dot,button.admin-hit:focus-visible .dot{box-shadow:0 0 0 4px rgba(40,200,64,.35)}
+button.admin-hit:active .dot{transform:scale(1.2)}
+button.admin-hit:focus-visible{outline:2px solid #28c840;outline-offset:2px}
+.editor-bar button.admin-hit{width:38px;height:38px;margin:-5px -11px}
+.saved-codebar button.admin-hit{width:34px;height:34px;margin:-6px -9px}
+.empty-note button.admin-hit{width:44px;height:44px;margin:-8px -6px -8px -12px}
+.editor-title{
+  margin-left:8px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#cccccc;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+.editor-body{position:relative;height:280px;background:#1e1e1e}
+.hl-layer,textarea#codeInput{
+  margin:0;padding:14px;border:none;
+  font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.65;tab-size:2;white-space:pre;
+}
+.hl-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;color:#d4d4d4}
+.hl-layer code{font:inherit;color:inherit}
+textarea#codeInput{
+  position:absolute;inset:0;width:100%;height:100%;
+  background:transparent;color:transparent;caret-color:#aeafad;
+  outline:none;resize:none;overflow:auto;
+}
+textarea#codeInput::placeholder{color:#858585}
+textarea#codeInput::selection{background:rgba(38,79,120,.55)}
+
+/* VS Code Dark+ token colors */
+.tok-k{color:#569cd6}
+.tok-cf{color:#c586c0}
+.tok-s{color:#ce9178}
+.tok-n{color:#b5cea8}
+.tok-com{color:#6a9955;font-style:italic}
+.tok-f{color:#dcdcaa}
+.tok-t{color:#4ec9b0}
+.tok-a{color:#9cdcfe}
+.tok-dec{color:#dcdcaa}
+.tok-pre{color:#c586c0}
+.tok-tag{color:#569cd6}
+
+/* Result */
+.result{
+  display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface-2);padding:13px 14px;margin-bottom:18px;
+}
+.result .badge{
+  width:42px;height:42px;flex:0 0 42px;border-radius:10px;display:grid;place-items:center;color:#fff;
+  font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14px;background:#64748b;
+}
+.result .r-label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 2px}
+.result .r-name{font-size:17px;font-weight:800;line-height:1.15;margin:0}
+.result .r-conf{margin-left:auto;text-align:right;flex:0 0 auto}
+.result .r-conf b{display:block;font-family:"JetBrains Mono",monospace;font-size:17px}
+.result .r-conf span{font-size:11.5px;color:var(--ink-3);font-weight:600}
+
+/* Save button */
+.btn-save{
+  width:100%;min-height:50px;border:none;border-radius:10px;cursor:pointer;
+  background:var(--accent);color:#fff;font-size:15.5px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:.15s;
+}
+@media (prefers-color-scheme: dark){.btn-save{color:#06231f}}
+.btn-save:hover{filter:brightness(1.07)}
+.btn-save:active{transform:scale(.99)}
+.btn-save svg{width:18px;height:18px}
+
+/* Saved preview */
+.saved{margin-top:26px}
+.saved[hidden]{display:none}
+.saved-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.saved-head h2{font-size:17px;margin:0;font-weight:800}
+.saved-head span{font-size:13px;color:var(--ink-3);font-weight:600}
+.saved-list{display:grid;gap:14px}
+.saved-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.saved-item-head{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);
+}
+.saved-item-head .s-name{font-weight:700;font-size:14.5px;word-break:break-word;min-width:0}
+.saved-item-head .s-lang{
+  flex:0 0 auto;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink-2);
+}
+.btn-copy{
+  margin-left:auto;flex:0 0 auto;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s;
+}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn-copy:active{transform:scale(.97)}
+.btn-copy svg{width:15px;height:15px}
+
+/* Admin mode (chạm vào chấm xanh để bật/tắt) */
+.btn-del{
+  flex:0 0 auto;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);color:#dc2626;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s;
+}
+.btn-del:hover{border-color:#dc2626;background:rgba(220,38,38,.07)}
+.btn-del:active{transform:scale(.97)}
+.btn-del svg{width:15px;height:15px}
+.saved-head span.admin-badge{
+  display:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:#fff;background:#b91c1c;border-radius:999px;padding:3px 9px;
+}
+.saved.admin .saved-head span.admin-badge{display:inline-block}
+.saved-tools{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn-del-all{
+  display:none;min-height:34px;padding:0 13px;border:1px solid #dc2626;border-radius:999px;
+  background:transparent;color:#dc2626;font-size:12.5px;font-weight:700;cursor:pointer;
+  align-items:center;gap:7px;transition:.15s;
+}
+.saved.admin .btn-del-all{display:inline-flex}
+.btn-del-all:hover{background:rgba(220,38,38,.08)}
+.btn-del-all:active{transform:scale(.97)}
+.btn-del-all svg{width:14px;height:14px}
+.saved-codebar{
+  display:flex;align-items:center;gap:6px;background:#323233;padding:8px 12px;
+}
+.saved-codebar .dot{width:10px;height:10px}
+.saved-codebar .cb-ext{
+  margin-left:5px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#cccccc;
+}
+.saved-item pre{
+  margin:0;background:var(--editor-bg);color:var(--editor-ink);
+  font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;
+  padding:14px;overflow:auto;max-height:380px;white-space:pre;
+}
+.saved-item pre code{font:inherit;color:inherit}
+
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:999px;font-size:13.5px;font-weight:600;
+  transition:.25s;z-index:50;box-shadow:0 12px 30px rgba(0,0,0,.22);max-width:92vw;text-align:center;
+}
+@media(prefers-color-scheme:dark){.toast{background:#e8f0ea;color:#101613}}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tqd</h1>
+  <p class="sub" id="subText" hidden></p>
+
+  <section class="card" id="inputCard" hidden aria-label="Nhập code">
+    <div class="field">
+      <label for="nameInput">Tên code</label>
+      <input id="nameInput" type="text" placeholder="Ví dụ: Bài tập vòng lặp, xin_chao.py…" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="codeInput">Dán code vào đây</label>
+      <div class="editor">
+        <div class="editor-bar">
+          <span class="dot dot-r" aria-hidden="true"></span><span class="dot dot-y" aria-hidden="true"></span><button type="button" class="admin-hit js-admin-dot" aria-label="Bật hoặc tắt chế độ admin" title="Chạm để bật/tắt chế độ admin"><span class="dot dot-g"></span></button>
+          <span class="editor-title" id="editorTitle">untitled</span>
+        </div>
+        <div class="editor-body">
+          <pre class="hl-layer" id="hlLayer" aria-hidden="true"><code id="hlCode"></code></pre>
+          <textarea id="codeInput" spellcheck="false" placeholder="// Dán code vào đây…
+function xinChao(ten) {
+  console.log(`Xin chào, ${ten}!`);
+}"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="result" aria-label="Kết quả nhận diện">
+      <div class="badge" id="resBadge">?</div>
+      <div>
+        <p class="r-label">Kết quả nhận diện</p>
+        <p class="r-name" id="resName">Chưa có code</p>
+      </div>
+      <div class="r-conf"><b id="resConf">—</b><span>độ tin cậy</span></div>
+    </div>
+
+    <button class="btn-save" id="btnSave" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+      Lưu code
+    </button>
+  </section>
+
+  <div class="empty-note" id="emptyNote"><button type="button" class="admin-hit js-admin-dot" aria-label="Bật hoặc tắt chế độ admin" title="Chạm để bật/tắt chế độ admin"><span class="dot dot-g"></span></button><span>Chưa có đoạn code nào.</span></div>
+
+  <section class="saved" id="savedSection" hidden aria-label="Code đã lưu">
+    <div class="saved-head">
+      <h2>Preview code đã lưu</h2>
+      <span class="admin-badge">Admin</span>
+      <div class="saved-tools">
+        <span id="savedCount"></span>
+        <button class="btn-del-all" id="btnDelAll" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          Xóa tất cả
+        </button>
+      </div>
+    </div>
+    <div class="saved-list" id="savedList"></div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Language definitions ---------- */
+var LANGS = {
+  python:{name:"Python", short:"Py", color:"#3776AB", ext:".py"},
+  javascript:{name:"JavaScript", short:"JS", color:"#b45309", ext:".js"},
+  typescript:{name:"TypeScript", short:"TS", color:"#2563eb", ext:".ts"},
+  java:{name:"Java", short:"Ja", color:"#b91c1c", ext:".java"},
+  c:{name:"C", short:"C", color:"#475569", ext:".c"},
+  cpp:{name:"C++", short:"C+", color:"#1d4ed8", ext:".cpp"},
+  csharp:{name:"C#", short:"C#", color:"#7c3aed", ext:".cs"},
+  go:{name:"Go (Golang)", short:"Go", color:"#0891b2", ext:".go"},
+  rust:{name:"Rust", short:"Rs", color:"#9a3412", ext:".rs"},
+  php:{name:"PHP", short:"Php", color:"#5b5bd6", ext:".php"},
+  ruby:{name:"Ruby", short:"Rb", color:"#b91c1c", ext:".rb"},
+  html:{name:"HTML", short:"<>", color:"#ea580c", ext:".html"},
+  css:{name:"CSS", short:"CSS", color:"#0284c7", ext:".css"},
+  sql:{name:"SQL", short:"SQL", color:"#0f766e", ext:".sql"},
+  swift:{name:"Swift", short:"Sw", color:"#ea580c", ext:".swift"},
+  kotlin:{name:"Kotlin", short:"Kt", color:"#7c3aed", ext:".kt"},
+  dart:{name:"Dart", short:"Da", color:"#0369a1", ext:".dart"},
+  r:{name:"R", short:"R", color:"#1e40af", ext:".r"},
+  shell:{name:"Shell / Bash", short:"$ ", color:"#334155", ext:".sh"},
+  json:{name:"JSON", short:"{}", color:"#57534e", ext:".json"},
+  yaml:{name:"YAML", short:"YML", color:"#be123c", ext:".yaml"},
+  xml:{name:"XML", short:"XML", color:"#a16207", ext:".xml"},
+  lua:{name:"Lua", short:"Lua", color:"#3730a3", ext:".lua"},
+  perl:{name:"Perl", short:"Pl", color:"#0e7490", ext:".pl"},
+  scala:{name:"Scala", short:"Sc", color:"#b91c1c", ext:".scala"}
+};
+
+function P(lang, list){ return list.map(function(x){ return {lang:lang, re:x[0], w:x[1]}; }); }
+var PATTERNS = [].concat(
+  P("python",[
+    [/from\s+__future__\s+import/,14],
+    [/if\s+__name__\s*==\s*['"]__main__['"]/,14],
+    [/\bdef\s+[A-Za-z_]\w*\s*\([^)]*\)\s*:/,11],
+    [/\bprint\s*\([^)]*\)/,4],
+    [/\bimport\s+(os|sys|re|json|math|random|numpy|pandas|requests)\b/,8],
+    [/^\s*import\s+[A-Za-z_][\w.]*\s*$/m,5],
+    [/^\s*from\s+[A-Za-z_][\w.]*\s+import\s+/m,7],
+    [/\belif\b/,8],
+    [/\bself\./,5],
+    [/^\s*class\s+[A-Za-z_]\w*(\([^)]*\))?:\s*$/m,8],
+    [/@\w+\s*\n\s*def\s/,7],
+    [/\b(True|False|None)\b/,4],
+    [/f['"][^'"]*\{[^}]+\}/,6]
+  ]),
+  P("javascript",[
+    [/console\.log\s*\(/,8],
+    [/\b(const|let|var)\s+[A-Za-z_$][\w$]*\s*=/,5],
+    [/=>\s*\{/,5],
+    [/\bfunction\s+[A-Za-z_$][\w$]*\s*\(/,5],
+    [/document\.(getElementById|querySelector|addEventListener)/,9],
+    [/require\s*\(\s*['"][^'"]+['"]\s*\)/,6],
+    [/module\.exports|exports\./,7],
+    [/\bawait\s+\w+|\basync\s+function\b/,5],
+    [/`[^`]*\$\{[^}]+\}[^`]*`/,5],
+    [/\bnew\s+Promise\b|Promise\./,5],
+    [/===|!==/,3]
+  ]),
+  P("typescript",[
+    [/\binterface\s+[A-Za-z_]\w*\s*\{/,11],
+    [/\btype\s+[A-Za-z_]\w*\s*=\s*\{/,8],
+    [/:\s*(string|number|boolean|string\[\]|number\[\])\b/,8],
+    [/\benum\s+[A-Za-z_]\w*\s*\{/,7],
+    [/\b(public|private|protected|readonly)\s+[A-Za-z_]\w*\s*:/,8],
+    [/as\s+(string|number|boolean|const)\b/,5],
+    [/<[A-Z][A-Za-z]*>\s*\(|Array<[A-Za-z]+>/,5]
+  ]),
+  P("java",[
+    [/System\.out\.println\s*\(/,12],
+    [/public\s+static\s+void\s+main\s*\(\s*String\[\]/,14],
+    [/import\s+java\./,11],
+    [/public\s+class\s+[A-Z]\w*/,8],
+    [/\b(String|int|boolean|double|void)\s+[a-zA-Z_]\w*\s*(\(|=|;)/,3]
+  ]),
+  P("c",[
+    [/#include\s*<\s*(stdio|stdlib|string|math)\.h\s*>/,13],
+    [/\bprintf\s*\(/,6],
+    [/\bint\s+main\s*\(\s*(void)?\s*\)/,8],
+    [/\bmalloc\s*\(|\bfree\s*\(/,7]
+  ]),
+  P("cpp",[
+    [/#include\s*<\s*(iostream|vector|string|algorithm|map|memory)\s*>/,13],
+    [/std::(cout|cin|endl|string|vector|map)/,12],
+    [/using\s+namespace\s+std\s*;/,9],
+    [/\bcout\s*<<|\bcin\s*>>/,9],
+    [/\btemplate\s*</,6]
+  ]),
+  P("csharp",[
+    [/using\s+System\s*;/,12],
+    [/Console\.(WriteLine|ReadLine)\s*\(/,11],
+    [/\bnamespace\s+[A-Za-z_][\w.]*\s*\{/,7],
+    [/\bvar\s+\w+\s*=\s*new\s+/,4],
+    [/\bstring\s+\w+\s*=\s*\$"/,6]
+  ]),
+  P("go",[
+    [/^\s*package\s+(main|\w+)\s*$/m,12],
+    [/fmt\.(Println|Printf|Print)\s*\(/,11],
+    [/\bfunc\s+(main\s*\(|[a-zA-Z_]\w*\s*\()/,7],
+    [/\w+\s*:=\s*/,6],
+    [/import\s*\(\s*\n/,6],
+    [/\bgo\s+func\s*\(|\bchan\s+/,6]
+  ]),
+  P("rust",[
+    [/println!\s*\(/,12],
+    [/\bfn\s+main\s*\(\s*\)/,10],
+    [/\blet\s+mut\s+/,8],
+    [/\buse\s+std::/,8],
+    [/\bimpl\s+\w+\s+for\s+\w+/,7],
+    [/->\s*[A-Za-z_<>,& ]+\s*\{/,4]
+  ]),
+  P("php",[
+    [/<\?php/,16],
+    [/\$[A-Za-z_]\w*\s*=/,6],
+    [/\becho\s+/,3],
+    [/->\w+\s*\(|\$\w+->/,4],
+    [/\bfunction\s+\w+\s*\([^)]*\$[^)]*\)/,6]
+  ]),
+  P("ruby",[
+    [/\bputs\s+/,5],
+    [/^\s*def\s+\w+[^\n]*\n[\s\S]{0,400}?\n\s*end\b/m,8],
+    [/\brequire\s+['"][^'"]+['"]/,5],
+    [/\bdo\s*\|[^|]+\|/,6],
+    [/@@?\w+/,3]
+  ]),
+  P("html",[
+    [/<!DOCTYPE\s+html/i,14],
+    [/<html[\s>]/i,10],
+    [/<(div|span|section|header|footer|main|body|head|title|p|a|img|ul|li|button|input)\b[^>]*>/i,6],
+    [/<\/[a-z]+\s*>/i,3]
+  ]),
+  P("css",[
+    [/[.#]?[A-Za-z][\w-]*\s*\{\s*\n?\s*(color|background|display|margin|padding|font-size|width|height|flex|grid)\s*:/m,11],
+    [/\b(display|position|flex-direction|justify-content|align-items|background-color|border-radius|font-family)\s*:/,7],
+    [/@media\s*\(/,7]
+  ]),
+  P("sql",[
+    [/\bSELECT\s+[\w*,\s]+\s+FROM\s+\w+/i,13],
+    [/\bINSERT\s+INTO\s+\w+/i,11],
+    [/\bCREATE\s+TABLE\s+\w+/i,11],
+    [/\b(UPDATE\s+\w+\s+SET|DELETE\s+FROM|WHERE\s+\w+\s*=|GROUP\s+BY|ORDER\s+BY|JOIN\s+\w+\s+ON)\b/i,7]
+  ]),
+  P("swift",[
+    [/import\s+(UIKit|SwiftUI|Foundation)\b/,11],
+    [/\b(let|var)\s+\w+\s*:\s*(String|Int|Bool|Double)/,7],
+    [/\bfunc\s+\w+\s*\([^)]*\)\s*(->\s*\w+\s*)?\{/,5],
+    [/\bguard\s+let\b/,8]
+  ]),
+  P("kotlin",[
+    [/\bfun\s+main\s*\(/,11],
+    [/\b(val|var)\s+\w+\s*(:\s*(String|Int|Boolean|Double))?\s*=/,6],
+    [/println\s*\(/,3],
+    [/\bdata\s+class\s+\w+/,8],
+    [/import\s+kotlin\./,8]
+  ]),
+  P("dart",[
+    [/import\s+['"]package:flutter/,12],
+    [/\bvoid\s+main\s*\(\s*\)\s*\{/,6],
+    [/\bclass\s+\w+\s+extends\s+(StatelessWidget|StatefulWidget)/,11],
+    [/@override\s*\n\s*Widget\s+build/,9]
+  ]),
+  P("r",[
+    [/<-\s*/,6],
+    [/\blibrary\s*\(\s*(ggplot2|dplyr|tidyverse)\s*\)/,10],
+    [/data\.frame\s*\(/,5],
+    [/%>%\s*/,7]
+  ]),
+  P("shell",[
+    [/#!\/bin\/(bash|sh|zsh)/,14],
+    [/#!\/usr\/bin\/env\s+(bash|sh|python)/,10],
+    [/\b(echo|cd|mkdir|chmod|grep|awk|sed|curl|wget)\b[^\n]*/,3],
+    [/\b(fi|done|esac)\b/,7]
+  ]),
+  P("lua",[
+    [/\blocal\s+\w+\s*=/,6],
+    [/\bfunction\s+\w+\s*\([^)]*\)[\s\S]{0,300}?\bend\b/,6],
+    [/\bthen\s*\n/,3]
+  ]),
+  P("perl",[
+    [/\bmy\s+\$\w+/,8],
+    [/\buse\s+(strict|warnings)\s*;/,9],
+    [/\$_|\$\w+\s*=~/,5]
+  ]),
+  P("scala",[
+    [/\bobject\s+\w+\s+extends\s+App\b/,11],
+    [/\bdef\s+\w+\s*\([^)]*\)\s*:\s*\w+\s*=/,8],
+    [/\bval\s+\w+\s*=\s*/,3]
+  ]),
+  P("xml",[
+    [/<\?xml\s+version=/,13],
+    [/<[A-Za-z][\w.-]*(\s+[\w.-]+="[^"]*")*\s*>\s*\n\s*</,4]
+  ]),
+  P("yaml",[
+    [/^[A-Za-z_][\w-]*:\s+\S.*\n(  [A-Za-z_][\w-]*:|  - )/m,7],
+    [/^\s*-\s+[A-Za-z_]/m,3]
+  ])
+);
+
+/* ---------- Detection engine ---------- */
+function detect(code, fileName){
+  var scores = {};
+  Object.keys(LANGS).forEach(function(k){ scores[k]=0; });
+  function add(lang, w){ if(scores[lang]!==undefined) scores[lang]+=w; }
+
+  var EXT_MAP = {py:"python",js:"javascript",jsx:"javascript",ts:"typescript",tsx:"typescript",java:"java",c:"c",h:"c",cpp:"cpp",cc:"cpp",cs:"csharp",go:"go",rs:"rust",php:"php",rb:"ruby",html:"html",htm:"html",css:"css",scss:"css",sql:"sql",swift:"swift",kt:"kotlin",dart:"dart",r:"r",sh:"shell",bash:"shell",json:"json",xml:"xml",yml:"yaml",yaml:"yaml",lua:"lua",pl:"perl",scala:"scala"};
+
+  if(fileName){
+    var m = fileName.toLowerCase().match(/\.([a-z0-9]+)$/);
+    if(m && EXT_MAP[m[1]]) add(EXT_MAP[m[1]], 26);
+  }
+  var firstLine = (code.split("\n")[0]||"").trim();
+  if(/^#!/.test(firstLine)){
+    if(/python/.test(firstLine)) add("python", 22);
+    else if(/node/.test(firstLine)) add("javascript", 22);
+    else if(/(bash|sh|zsh)/.test(firstLine)) add("shell", 22);
+    else if(/ruby/.test(firstLine)) add("ruby", 22);
+    else if(/perl/.test(firstLine)) add("perl", 22);
+  }
+  var trimmed = code.trim();
+  if(/^\{/.test(trimmed) || /^\[/.test(trimmed)){
+    try{
+      var parsed = JSON.parse(trimmed);
+      if(parsed && typeof parsed === "object") add("json", 34);
+    }catch(e){
+      if(/^\{\s*"[^"]+"\s*:/.test(trimmed)) add("json", 10);
+    }
+  }
+  var isHtml = /<!DOCTYPE\s+html|<html[\s>]|<(head|body|div|header|main)\b/i.test(code);
+
+  PATTERNS.forEach(function(p){
+    try{ if(p.re.test(code)) add(p.lang, p.w); }catch(e){}
+  });
+  if(isHtml){ scores.xml = Math.max(0, (scores.xml||0) - 12); }
+
+  var lines = code.split("\n").filter(function(l){ return l.trim().length; });
+  if(lines.length >= 3){
+    var kv = lines.filter(function(l){ return /^\s*[A-Za-z_][\w-]*:\s/.test(l) || /^\s*-\s/.test(l); }).length;
+    if(kv / lines.length > 0.6 && !/[{};]/.test(code.slice(0,400))) add("yaml", 9);
+  }
+
+  var ranked = Object.keys(scores).map(function(k){ return {key:k, score:scores[k]}; })
+    .filter(function(x){ return x.score > 0; })
+    .sort(function(a,b){ return b.score - a.score; });
+  return ranked;
+}
+
+function confidenceFor(ranked){
+  if(!ranked.length) return 0;
+  var top = ranked[0].score, second = ranked[1] ? ranked[1].score : 0;
+  if(top < 4) return Math.min(38, 18 + top * 4);
+  var base = top / (top + second + 12);
+  var conf = Math.round(42 + base * 56);
+  return Math.max(30, Math.min(98, conf));
+}
+
+/* ---------- Syntax highlighting (VS Code Dark+ style) ---------- */
+function escHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function wordSet(str){
+  var o = {};
+  str.split(/\s+/).forEach(function(w){ if(w) o[w] = true; });
+  return o;
+}
+var KW_CONTROL = wordSet("if else elif for while do switch case default break continue return try catch finally throw throws raise except with as lambda match when guard defer go select end begin rescue ensure then in of instanceof typeof delete new yield await pass goto fallthrough");
+var KW_BLUE = wordSet("def function class extends implements interface enum struct union typedef namespace package import from export exports public private protected static final abstract virtual override void int float double char bool boolean string var let const val func fn fun sub my local true false True False None null nil undefined this self super long short unsigned signed using template typename operator friend inline extern volatile register mut pub use mod impl trait where unsafe ref out params internal sealed data object companion vararg suspend lateinit reified global readonly event delegate base is not and or");
+var KW_BUILTIN = wordSet("print println printf sprintf echo puts console document window Math JSON Promise Array Object String Number Boolean require module process len range str list dict set int float type isinstance format input open self");
+var HASH_COMMENT_LANGS = {python:1, ruby:1, shell:1, yaml:1, perl:1, r:1, php:1};
+
+function highlightMarkup(code){
+  var re = /(<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(<\/?)([A-Za-z][\w.-]*)|([A-Za-z_:][\w:.-]*)(=)|(\/?>)/g;
+  var out = "", last = 0, m;
+  while((m = re.exec(code))){
+    out += escHtml(code.slice(last, m.index));
+    if(m[1]) out += '<span class="tok-com">' + escHtml(m[1]) + "</span>";
+    else if(m[2]) out += '<span class="tok-s">' + escHtml(m[2]) + "</span>";
+    else if(m[3]) out += '<span class="tok-tag">' + escHtml(m[3]) + escHtml(m[4]) + "</span>";
+    else if(m[5]) out += '<span class="tok-a">' + escHtml(m[5]) + "</span>" + escHtml(m[6]);
+    else if(m[7]) out += '<span class="tok-tag">' + escHtml(m[7]) + "</span>";
+    last = re.lastIndex;
+  }
+  out += escHtml(code.slice(last));
+  return out;
+}
+
+function highlightCode(code, langKey){
+  if(langKey === "html" || langKey === "xml") return highlightMarkup(code);
+  var hashComment = !!HASH_COMMENT_LANGS[langKey];
+  var NEVER = "([^\\s\\S])"; /* nhóm giữ chỗ không bao giờ khớp, để chỉ số nhóm luôn cố định */
+  var src = "(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*)";
+  src += hashComment ? "|(#[^\\n]*)" : "|" + NEVER;
+  src += "|(\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|`(?:\\\\.|[^`\\\\])*`)"
+       + "|\\b(\\d[\\d_]*(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\b"
+       + "|(@[A-Za-z_]\\w*)"
+       + (langKey === "css" ? "|" + NEVER : "|(^\\s*#[^\\n]*)")
+       + "|([A-Za-z_$][\\w$]*)";
+  var re = new RegExp(src, "gm");
+  var out = "", last = 0, m;
+  while((m = re.exec(code))){
+    out += escHtml(code.slice(last, m.index));
+    if(m[1] || m[2]) out += '<span class="tok-com">' + escHtml(m[0]) + "</span>";
+    else if(m[3]) out += '<span class="tok-s">' + escHtml(m[3]) + "</span>";
+    else if(m[4]) out += '<span class="tok-n">' + escHtml(m[4]) + "</span>";
+    else if(m[5]) out += '<span class="tok-dec">' + escHtml(m[5]) + "</span>";
+    else if(m[6]) out += '<span class="tok-pre">' + escHtml(m[6]) + "</span>";
+    else if(m[7]){
+      var w = m[7];
+      var rest = code.slice(re.lastIndex);
+      var nextCh = (rest.match(/^\s*(.)/) || [])[1] || "";
+      if(KW_CONTROL[w]) out += '<span class="tok-cf">' + escHtml(w) + "</span>";
+      else if(KW_BLUE[w]) out += '<span class="tok-k">' + escHtml(w) + "</span>";
+      else if(langKey === "sql" && /^(SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|CREATE|TABLE|JOIN|GROUP|ORDER|LIMIT|INTO|VALUES|SET|ON|AS|AND|OR|NOT|NULL)$/i.test(w)) out += '<span class="tok-k">' + escHtml(w) + "</span>";
+      else if(KW_BUILTIN[w]) out += '<span class="tok-f">' + escHtml(w) + "</span>";
+      else if(nextCh === "(") out += '<span class="tok-f">' + escHtml(w) + "</span>";
+      else if(/^[A-Z]/.test(w)) out += '<span class="tok-t">' + escHtml(w) + "</span>";
+      else if(nextCh === ":" && (langKey === "css" || langKey === "json" || langKey === "yaml")) out += '<span class="tok-a">' + escHtml(w) + "</span>";
+      else out += escHtml(w);
+    }
+    last = re.lastIndex;
+    if(re.lastIndex === m.index) re.lastIndex++;
+  }
+  out += escHtml(code.slice(last));
+  return out;
+}
+
+/* ---------- DOM ---------- */
+var $ = function(id){ return document.getElementById(id); };
+var nameEl = $("nameInput"), codeEl = $("codeInput");
+var toastTimer = null;
+function toast(msg){
+  var t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
+}
+
+var currentResult = null; /* {key, name, conf} hoặc null */
+
+function paintHighlight(){
+  var key = currentResult ? currentResult.key : null;
+  $("hlCode").innerHTML = highlightCode(codeEl.value, key) + "\n";
+  var layer = $("hlLayer");
+  layer.scrollTop = codeEl.scrollTop;
+  layer.scrollLeft = codeEl.scrollLeft;
+  var title = nameEl.value.trim();
+  var ext = currentResult && LANGS[currentResult.key] ? LANGS[currentResult.key].ext : "";
+  $("editorTitle").textContent = title || ("untitled" + ext);
+}
+
+function renderResult(){
+  var code = codeEl.value;
+  if(!code.trim()){
+    currentResult = null;
+    $("resBadge").textContent = "?"; $("resBadge").style.background = "#64748b";
+    $("resName").textContent = "Chưa có code";
+    $("resConf").textContent = "—";
+    paintHighlight();
+    return;
+  }
+  var ranked = detect(code, nameEl.value.trim());
+  if(!ranked.length || ranked[0].score < 3){
+    currentResult = null;
+    $("resBadge").textContent = "?"; $("resBadge").style.background = "#64748b";
+    $("resName").textContent = "Chưa xác định được";
+    $("resConf").textContent = "thấp";
+    paintHighlight();
+    return;
+  }
+  var L = LANGS[ranked[0].key];
+  var conf = confidenceFor(ranked);
+  currentResult = { key: ranked[0].key, name: L.name, conf: conf };
+  $("resBadge").textContent = L.short; $("resBadge").style.background = L.color;
+  $("resName").textContent = L.name;
+  $("resConf").textContent = conf + "%";
+  paintHighlight();
+}
+
+var debounce = null;
+codeEl.addEventListener("input", function(){ paintHighlight(); clearTimeout(debounce); debounce = setTimeout(renderResult, 120); });
+codeEl.addEventListener("scroll", function(){
+  var layer = $("hlLayer");
+  layer.scrollTop = codeEl.scrollTop;
+  layer.scrollLeft = codeEl.scrollLeft;
+});
+nameEl.addEventListener("input", function(){ clearTimeout(debounce); debounce = setTimeout(renderResult, 200); });
+
+/* ---------- Save & preview ---------- */
+var savedItems = [];
+var adminMode = false;
+
+function copyText(text, doneMsg){
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast(doneMsg); }
+    catch(e){ toast("Không sao chép được, hãy thử lại."); }
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ toast(doneMsg); }, fallback);
+  } else { fallback(); }
+}
+
+/* Chế độ thường: chỉ xem preview. Chế độ admin: hiện thêm phần nhập & lưu code. */
+function syncModeUI(){
+  $("inputCard").hidden = !adminMode;
+  $("emptyNote").hidden = adminMode || savedItems.length > 0;
+  var sub = $("subText");
+  sub.hidden = !adminMode;
+  sub.textContent = adminMode
+    ? "Nhập tên, dán code vào — trang tự nhận diện ngôn ngữ, bấm Lưu để giữ lại đoạn code trong mục xem trước bên dưới."
+    : "";
+}
+
+function renderSaved(){
+  var section = $("savedSection"), list = $("savedList");
+  section.classList.toggle("admin", adminMode);
+  syncModeUI();
+  if(!savedItems.length){ section.hidden = true; list.innerHTML = ""; return; }
+  section.hidden = false;
+  $("savedCount").textContent = savedItems.length + " đoạn code";
+  list.innerHTML = "";
+  savedItems.forEach(function(item, idx){
+    var card = document.createElement("article");
+    card.className = "saved-item";
+
+    var head = document.createElement("div");
+    head.className = "saved-item-head";
+
+    var nameSpan = document.createElement("span");
+    nameSpan.className = "s-name";
+    nameSpan.textContent = item.name;
+    head.appendChild(nameSpan);
+
+    if(item.langName){
+      var langTag = document.createElement("span");
+      langTag.className = "s-lang";
+      langTag.textContent = item.langName;
+      head.appendChild(langTag);
+    }
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn-copy";
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+    btn.addEventListener("click", function(){ copyText(item.code, "Đã copy code “" + item.name + "”"); });
+    head.appendChild(btn);
+
+    if(adminMode){
+      var delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn-del";
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> Xóa';
+      delBtn.addEventListener("click", function(){
+        savedItems.splice(idx, 1);
+        renderSaved();
+        toast("Đã xóa code “" + item.name + "”");
+      });
+      head.appendChild(delBtn);
+    }
+
+    var codebar = document.createElement("div");
+    codebar.className = "saved-codebar";
+    ["dot-r", "dot-y", "dot-g"].forEach(function(cls){
+      if(cls === "dot-g"){
+        var hitBtn = document.createElement("button");
+        hitBtn.type = "button";
+        hitBtn.className = "admin-hit js-admin-dot";
+        hitBtn.title = "Chạm để bật/tắt chế độ admin";
+        hitBtn.setAttribute("aria-label", "Bật hoặc tắt chế độ admin");
+        var innerDot = document.createElement("span");
+        innerDot.className = "dot dot-g";
+        hitBtn.appendChild(innerDot);
+        codebar.appendChild(hitBtn);
+        return;
+      }
+      var d = document.createElement("span");
+      d.className = "dot " + cls;
+      d.setAttribute("aria-hidden", "true");
+      codebar.appendChild(d);
+    });
+    if(item.langKey && LANGS[item.langKey]){
+      var extSpan = document.createElement("span");
+      extSpan.className = "cb-ext";
+      extSpan.textContent = LANGS[item.langKey].ext;
+      codebar.appendChild(extSpan);
+    }
+
+    var pre = document.createElement("pre");
+    var codeNode = document.createElement("code");
+    codeNode.innerHTML = highlightCode(item.code, item.langKey || null);
+    pre.appendChild(codeNode);
+
+    card.appendChild(head);
+    card.appendChild(codebar);
+    card.appendChild(pre);
+    list.appendChild(card);
+  });
+}
+
+/* ---------- Admin mode: chạm vào chấm tròn màu xanh để bật/tắt ---------- */
+function setAdmin(on){
+  adminMode = on;
+  renderSaved();
+  toast(on ? "Đã bật chế độ admin: có thể lưu và xóa code." : "Đã tắt chế độ admin: chỉ xem được preview code.");
+}
+document.addEventListener("click", function(e){
+  var t = e.target;
+  var hit = t && t.closest ? t.closest(".js-admin-dot") : null;
+  if(hit) setAdmin(!adminMode);
+});
+
+$("btnDelAll").addEventListener("click", function(){
+  if(!savedItems.length) return;
+  savedItems = [];
+  renderSaved();
+  toast("Đã xóa tất cả code đã lưu.");
+});
+
+$("btnSave").addEventListener("click", function(){
+  if(!adminMode){ toast("Chỉ admin mới lưu được code."); return; }
+  var name = nameEl.value.trim();
+  var code = codeEl.value;
+  if(!name){ toast("Hãy nhập tên cho đoạn code trước khi lưu."); nameEl.focus(); return; }
+  if(!code.trim()){ toast("Hãy dán code vào trước khi lưu."); codeEl.focus(); return; }
+  savedItems.unshift({
+    name: name,
+    code: code,
+    langName: currentResult ? currentResult.name : "",
+    langKey: currentResult ? currentResult.key : ""
+  });
+  renderSaved();
+  toast("Đã lưu code “" + name + "”");
+  var section = $("savedSection");
+  if(section && section.scrollIntoView){ section.scrollIntoView({behavior:"smooth", block:"start"}); }
+});
+
+syncModeUI();
+renderResult();
+})();
+</script>
+</body>
+</html>
