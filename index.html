@@ -541,7 +541,7 @@ async function boot(){
   setSync("","đang kết nối…");
   loadTimer=setTimeout(function(){ setSync("err","không phản hồi — đang thử lại…"); },10000);
   if(typeof claude==="undefined"||!claude.use){
-    clearTimeout(loadTimer); setSync("err","chỉ xem được ở đây (ngoài claude.ai)");
+    clearTimeout(loadTimer); setSync("err","");
     $("emptyText").textContent="Chưa có đoạn code nào."; renderSaved(); return;
   }
   try{
@@ -572,4 +572,3 @@ renderSaved(); syncModeUI(); renderResult(); boot();
 </script>
 </body>
 </html>
-
